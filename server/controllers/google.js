@@ -80,7 +80,7 @@ async function googleSignInCallback(ctx) {
   const roleService = strapi.plugin("webunal-login").service("role");
 
   if (!ctx.query.code) {
-    return ctx.send(oauthService.renderSignUpError(`code Not Found`));
+    return ctx.send(oauthService.renderSignUpError(`Code not found`));
   }
 
   const params = new URLSearchParams();
@@ -91,37 +91,44 @@ async function googleSignInCallback(ctx) {
   params.append("grant_type", OAUTH_GRANT_TYPE);
 
   try {
+    // Intercambiar el código de autorización por un token de acceso
     const response = await httpClient.post(OAUTH_TOKEN_ENDPOINT, params, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
+
+    // Obtener información del usuario de Google
     const userInfoEndpoint = `${OAUTH_USER_INFO_ENDPOINT}?access_token=${response.data.access_token}`;
     const userResponse = await httpClient.get(userInfoEndpoint);
 
-    // for GSuite
+    // Restricción de dominio GSuite
     if (config["GOOGLE_GSUITE_HD"]) {
       if (userResponse.data.hd !== config["GOOGLE_GSUITE_HD"]) {
         throw new Error("Unauthorized email address");
       }
     }
 
+    // Preparar el email (aplicar alias si está configurado)
     const email = config["GOOGLE_ALIAS"]
       ? oauthService.addGmailAlias(
           userResponse.data.email,
           config["GOOGLE_ALIAS"]
         )
-      : userResponse.data.email;
-    const dbUser = await userService.findOneByEmail(email);
+      : userResponse.data.email.toLowerCase();
+
+    // Verificar si el usuario ya existe en Strapi
     let activateUser;
     let jwtToken;
 
+    const dbUser = await userService.findOneByEmail(email);
+
     if (dbUser) {
-      // Already registered
+      // El usuario existe, proceder al inicio de sesión
       activateUser = dbUser;
-      jwtToken = await tokenService.createJwtToken(dbUser);
+      jwtToken = await tokenService.createJwtToken(activateUser);
     } else {
-      // Register a new account
+      // El usuario no existe, registrar una nueva cuenta
       const googleRoles = await roleService.googleRoles();
       const roles =
         googleRoles && googleRoles["roles"]
@@ -145,10 +152,19 @@ async function googleSignInCallback(ctx) {
       // Trigger webhook
       await oauthService.triggerWebHook(activateUser);
     }
-    // Login Event Call
+
+    // Guardar el token JWT en una cookie
+    ctx.cookies.set("token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Asegúrate de usar HTTPS en producción
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24, // 1 día
+    });
+
+    // Evento de inicio de sesión exitoso
     oauthService.triggerSignInSuccess(activateUser);
 
-    // Client-side authentication persistence and redirection
+    // Persistencia de autenticación en el cliente y redirección
     const nonce = v4();
     const html = oauthService.renderSignUpSuccess(
       jwtToken,
@@ -162,7 +178,6 @@ async function googleSignInCallback(ctx) {
     ctx.send(oauthService.renderSignUpError(e.message));
   }
 }
-
 module.exports = {
   renderLoginPage,
   googleSignIn,
