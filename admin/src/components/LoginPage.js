@@ -26,7 +26,7 @@ function LoginPage({
       width: '100vw',  // Ancho de toda la ventana
       margin: 0,       // Elimina márgenes
       padding: 0,      // Elimina padding
-      backgroundImage: 'url(/background.png)', // Imagen de fondo
+      backgroundImage: 'url(/plugins/webunal-login/assets/background.png)', // Imagen de fondo
       backgroundSize: 'cover', // Ajusta la imagen para cubrir todo el fondo
       backgroundRepeat: 'no-repeat', // Evita que se repita
       backgroundPosition: 'center', // Centra la imagen
@@ -140,7 +140,7 @@ function LoginPage({
         React.createElement(
           'div',
           { style: styles.loginImageSection },
-          React.createElement('img', { src: '/image.png', alt: 'Login background', style: styles.loginImage })
+          React.createElement('img', { src: '/plugins/webunal-login/assets/image.png', alt: 'Login background', style: styles.loginImage })
         ),
         React.createElement(
           'div',
@@ -158,7 +158,7 @@ function LoginPage({
                 href: '/webunal-login/google',
               },
               React.createElement('img', {
-                src: '/google.png',
+                src: '/plugins/webunal-login/assets/google.png',
                 style: styles.googleIcon,
                 width: 24,
                 height: 24,
