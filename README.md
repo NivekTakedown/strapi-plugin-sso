@@ -181,6 +181,16 @@ module.exports = [
 ];
 ```
 
+### Variables de Entorno
+
+Asegúrate de definir las siguientes variables de entorno en tu archivo `.env`:
+
+```properties
+SITE_NAME=Your Site Name
+SITE_SUBTITLE=Your Site Subtitle
+LOGIN_INSTRUCTIONS=Please login using your credentials
+CONTACT_EMAIL=contact@example.com
+```
 ### Funcionalidades del Middleware
 
 - Redirección automática del panel de inicio de sesion (`/admin/auth/login`) al login

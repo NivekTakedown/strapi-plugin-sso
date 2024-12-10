@@ -11,10 +11,10 @@ const React = require("react");
 // }
 
 function LoginPage({
-  siteName = "Nombre del sitio web",
-  siteSubtitle = "CMS - Gestor de contenidos",
-  loginInstructions = "Accede con tu correo institucional @unal.edu.co, serás redirigido para validar tu identidad.",
-  contactEmail = "XXXXXXXX@unal.edu.co",
+  siteName = process.env.SITE_NAME,
+  siteSubtitle = process.env.SITE_SUBTITLE,
+  loginInstructions = process.env.LOGIN_INSTRUCTIONS,
+  contactEmail = process.env.CONTACT_EMAIL,
 }) {
   // Estilos en línea
   const styles = {
