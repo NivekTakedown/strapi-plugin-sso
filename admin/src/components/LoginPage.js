@@ -158,7 +158,7 @@ function LoginPage({
                 href: '/webunal-login/google',
               },
               React.createElement('img', {
-                src: '/google.png',
+                src: 'src\plugins\webunal-login\admin\src\assets\background.png',
                 style: styles.googleIcon,
                 width: 24,
                 height: 24,
